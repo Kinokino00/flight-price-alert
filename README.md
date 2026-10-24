@@ -51,3 +51,11 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Architecture & deployment
+
+This is a plain **Vite + React single-page app** with client-side routing via **React Router** (`/`, `/signin`, `/signup`, `/app`). There is no server-side rendering.
+
+- `npm run build` → static files in `dist/`
+- `vercel.json` rewrites every path to `index.html`, so deep links like `/app` resolve client-side.
+- Supabase config is read at build time from `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (from `.env`, or set them in the Vercel project's environment variables).
