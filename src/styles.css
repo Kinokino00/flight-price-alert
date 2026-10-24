@@ -34,34 +34,48 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.13 0.012 285);
-  --foreground: oklch(0.97 0.005 285);
-  --card: oklch(0.18 0.018 285);
-  --card-foreground: oklch(0.97 0.005 285);
-  --popover: oklch(0.18 0.018 285);
-  --popover-foreground: oklch(0.97 0.005 285);
-  --primary: oklch(0.62 0.22 293);
-  --primary-glow: oklch(0.74 0.17 300);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.22 0.02 285);
-  --secondary-foreground: oklch(0.97 0.005 285);
-  --muted: oklch(0.22 0.02 285);
-  --muted-foreground: oklch(0.68 0.02 285);
-  --accent: oklch(0.25 0.05 293);
-  --accent-foreground: oklch(0.97 0.005 285);
-  --destructive: oklch(0.65 0.2 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.62 0.22 293);
+  /* "Island in the sky" palette — sampled from the hero painting:
+     deep sea #1b555d, upper sky #327c9f→#6cafd8, cloud white, terracotta roofs #c36a3c, teal awning #206e7a. */
+  --radius: 0.9rem;
+  --background: #eef5f7;
+  --foreground: #14353d;
+  --card: #fbf8f1;
+  --card-foreground: #14353d;
+  --popover: #fbf8f1;
+  --popover-foreground: #14353d;
+  --primary: #c2613a;
+  --primary-glow: #e1894f;
+  --primary-foreground: #fffaf3;
+  --secondary: #e2eef1;
+  --secondary-foreground: #14353d;
+  --muted: #e2eef1;
+  --muted-foreground: #4b6a71;
+  --accent: #d5ebee;
+  --accent-foreground: #1b555d;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #cadbe0;
+  --input: #b6cbd1;
+  --ring: #1f6f7a;
+  --sea: #1b555d;
+  --sea-light: #2a86a8;
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%);
-  --shadow-glow: 0 10px 40px -10px color-mix(in oklab, var(--primary) 55%, transparent);
+  --gradient-sea: linear-gradient(120deg, var(--sea) 10%, var(--sea-light) 90%);
+  /* Sky that fades into haze, with soft cumulus puffs painted in. */
+  --gradient-hero:
+    radial-gradient(38% 22% at 18% 14%, rgb(255 255 255 / 0.85), transparent 70%),
+    radial-gradient(30% 18% at 30% 8%, rgb(255 255 255 / 0.7), transparent 70%),
+    radial-gradient(34% 20% at 82% 20%, rgb(255 255 255 / 0.8), transparent 70%),
+    radial-gradient(26% 14% at 70% 12%, rgb(255 255 255 / 0.55), transparent 70%),
+    radial-gradient(50% 18% at 50% 46%, rgb(255 255 255 / 0.45), transparent 75%),
+    linear-gradient(180deg, #74b0d1 0%, #a5cfe3 26%, #d6e9f0 52%, var(--background) 78%);
+  --shadow-glow: 0 10px 30px -10px color-mix(in oklab, var(--primary) 60%, transparent);
+  --shadow-card: 0 1px 2px rgb(20 53 61 / 0.06), 0 12px 32px -16px rgb(20 53 61 / 0.25);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
+  h1, h2, h3 { letter-spacing: -0.015em; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -70,9 +84,13 @@
   }
 }
 
-@utility bg-hero { background-image: var(--gradient-hero); }
+@utility bg-hero {
+  background-image: var(--gradient-hero);
+  background-color: var(--background);
+  background-repeat: no-repeat;
+}
 @utility text-gradient {
-  background-image: var(--gradient-primary);
+  background-image: var(--gradient-sea);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -101,16 +119,18 @@
   padding: 0.6rem 1.1rem;
   font-weight: 500;
   font-size: 0.875rem;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in oklab, var(--sea) 30%, transparent);
+  background: rgb(255 255 255 / 0.55);
+  backdrop-filter: blur(6px);
   color: var(--foreground);
-  transition: background 0.2s;
-  &:hover { background: var(--secondary); }
+  transition: background 0.2s, border-color 0.2s;
+  &:hover { background: rgb(255 255 255 / 0.85); border-color: color-mix(in oklab, var(--sea) 50%, transparent); }
 }
 @utility field {
   width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--input);
-  background: var(--secondary);
+  background: #ffffff;
   padding: 0.65rem 0.85rem;
   font-size: 0.9rem;
   color: var(--foreground);
@@ -121,3 +141,21 @@
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .reveal.is-visible { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* Cards read as sunlit, weathered paper over the sea. */
+.bg-card { box-shadow: var(--shadow-card); }
+
+/* The hero painting, framed like a postcard. */
+.hero-painting {
+  margin: 3.5rem auto 0;
+  width: min(100%, 34rem);
+  padding: 0.5rem;
+  border-radius: calc(var(--radius) + 0.5rem);
+  background: #fffdf8;
+  box-shadow: 0 30px 60px -28px rgb(20 53 61 / 0.55), 0 2px 6px rgb(20 53 61 / 0.08);
+  rotate: -1.2deg;
+}
+.hero-painting img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+
+/* A thin horizon line where the hero meets the sea of content below. */
+.sea-horizon { background-image: linear-gradient(180deg, transparent, color-mix(in oklab, var(--sea-light) 14%, transparent)); }

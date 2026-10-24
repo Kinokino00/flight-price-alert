@@ -68,10 +68,18 @@ export function IndexPage() {
               <Link to="/signup" className="btn-primary">免費開始 / Get started</Link>
               <a href="#features" className="btn-ghost">了解更多 / Learn more</a>
             </div>
+            <figure className="hero-painting">
+              <img
+                src="/island-hero.webp"
+                width={547}
+                height={495}
+                alt="A rocky island village of terracotta-roofed houses rising out of a calm turquoise sea under towering clouds"
+              />
+            </figure>
           </div>
         </section>
 
-        <section id="features" className="mx-auto max-w-6xl px-4 py-24">
+        <section id="features" className="mx-auto max-w-6xl px-4 pb-24 pt-8">
           <div className="grid gap-6 md:grid-cols-3">
             {features.map((f, i) => (
               <Reveal key={f.title} delay={i * 120}>
