@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { Link, useRouteError } from "react-router";
 
-import { reportLovableError } from "@/lib/lovable-error-reporting";
-
 export function NotFoundPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -29,7 +27,6 @@ export function ErrorPage() {
   const error = useRouteError();
   useEffect(() => {
     console.error(error);
-    reportLovableError(error, { boundary: "react_router_error_element" });
   }, [error]);
 
   return (

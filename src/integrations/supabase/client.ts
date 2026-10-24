@@ -1,68 +1,41 @@
-// Browser-only Supabase client for the static SPA.
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
-import { brokeredPreviewStorage } from './previewAuthStorage';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./types";
 
-function isNewSupabaseApiKey(value: string): boolean {
-  return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
+// The single Supabase client for the app. Values are inlined by Vite at build
+// time from .env (locally) or the Vercel project's environment variables.
+const SUPABASE_URL = import.meta.env["VITE_SUPABASE_URL"];
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const missing = [
+    ...(!SUPABASE_URL ? ["VITE_SUPABASE_URL"] : []),
+    ...(!SUPABASE_PUBLISHABLE_KEY ? ["VITE_SUPABASE_PUBLISHABLE_KEY"] : []),
+  ];
+  throw new Error(
+    `Missing Supabase environment variable(s): ${missing.join(", ")}. Set them in .env or your Vercel project settings.`,
+  );
 }
 
-function createSupabaseFetch(supabaseKey: string): typeof fetch {
+// Publishable keys (sb_publishable_*) are opaque strings, not JWTs: send them only
+// as the `apikey` header, never as a Bearer token.
+function publishableKeyFetch(key: string): typeof fetch {
   return (input, init) => {
-    const headers = new Headers(
-      typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
-    );
-
-    if (init?.headers) {
-      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+    const headers = new Headers(input instanceof Request ? input.headers : undefined);
+    if (init?.headers) new Headers(init.headers).forEach((value, name) => headers.set(name, value));
+    if (key.startsWith("sb_publishable_") && headers.get("Authorization") === `Bearer ${key}`) {
+      headers.delete("Authorization");
     }
-
-    // New Supabase API keys are opaque strings, not bearer JWTs.
-    if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
-      headers.delete('Authorization');
-    }
-
-    headers.set('apikey', supabaseKey);
+    headers.set("apikey", key);
     return fetch(input, { ...init, headers });
   };
 }
 
-
-function createSupabaseClient() {
-  // Static SPA: values are inlined by Vite at build time from VITE_* env vars.
-  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'];
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'];
-
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ['VITE_SUPABASE_URL'] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ['VITE_SUPABASE_PUBLISHABLE_KEY'] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Set them in .env or your Vercel project settings.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
-  }
-
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    global: {
-      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
-    },
-    auth: {
-      storage: brokeredPreviewStorage(),
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
-}
-
-let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
-
-// Import the supabase client like this:
+// Import the client like this:
 // import { supabase } from "@/integrations/supabase/client";
-export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
-  get(_, prop, receiver) {
-    if (!_supabase) _supabase = createSupabaseClient();
-    return Reflect.get(_supabase, prop, receiver);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  global: { fetch: publishableKeyFetch(SUPABASE_PUBLISHABLE_KEY) },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
   },
 });
-
