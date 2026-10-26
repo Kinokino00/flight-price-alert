@@ -29,7 +29,7 @@ export function SubscribePanel({ email }: { email: string }) {
         設定目標價（新台幣），每 30 分鐘檢查一次下個月的最低票價，達標就寄信通知你。
       </p>
       {error && <p className="mt-3 text-sm text-destructive">{(error as Error).message}</p>}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PLANS.map((p) => (
           <PlanCard
             key={p.plan}

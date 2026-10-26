@@ -4,7 +4,7 @@ export const FLIGHT_API_URL: string =
   import.meta.env["VITE_FLIGHT_API_URL"] ??
   "https://m3czapana2.execute-api.us-east-1.amazonaws.com";
 
-export type PlanName = "tokyo" | "seoul";
+export type PlanName = "tokyo" | "seoul" | "london";
 
 export type Subscription = {
   email: string;
@@ -19,8 +19,9 @@ export type Subscription = {
 };
 
 export const PLANS: { plan: PlanName; label: string; route: string; hint: number }[] = [
-  { plan: "tokyo", label: "台北 ✈ 東京", route: "TPE-TYO", hint: 9325 },
-  { plan: "seoul", label: "台北 ✈ 首爾", route: "TPE-SEL", hint: 5989 },
+  { plan: "tokyo", label: "台北 ✈ 東京", route: "TPE-TYO", hint: 7457 },
+  { plan: "seoul", label: "台北 ✈ 首爾", route: "TPE-SEL", hint: 7071 },
+  { plan: "london", label: "台北 ✈ 倫敦", route: "TPE-LON", hint: 23081 },
 ];
 
 export async function listSubscriptions(email: string): Promise<Subscription[]> {
